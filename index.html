@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width" initial-scale="1.0">
+  <title>HubKe Login</title>
+  <style>
+    body { 
+      font-family: Arial; 
+      background:#f4f4f4; 
+      display:flex; 
+      justify-content:center; 
+      align-items:center; 
+      height:100vh; 
+    }
+
+    .box {
+      background:white; 
+      padding:20px; 
+      width:300px;
+      border-radius:10px; 
+      box-shadow:0 0 10px rgba(0,0,0,0.2);
+    }
+
+    input {
+      width:100%; 
+      padding:10px; 
+      margin:8px 0;
+    }
+
+    button {
+      width:100%; 
+      padding:10px; 
+      background:red; 
+      color:white; 
+      border:none;
+      cursor:pointer;
+    }
+
+    button:hover { 
+      background:darkred; 
+    }
+
+    .switch {
+      text-align:center; 
+      margin-top:10px; 
+      cursor:pointer; 
+      color:blue;
+    }
+    .name{
+     display:none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+
+  <h2 id="title">Login</h2>
+
+  <input class="name" type="text" id="name" placeholder="Full Name" >
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="handleAuth()">Submit</button>
+
+  <div class="switch" onclick="toggleMode()">
+    Switch to Register
+  </div>
+
+</div>
+
+<script>
+let mode = "login";
+
+function toggleMode(){
+  mode = (mode === "login") ? "register" : "login";
+
+  document.getElementById("title").innerText = mode.toUpperCase();
+  document.querySelector(".switch").innerText =
+    mode === "login" ? "Switch to Register" : "Switch to Login";
+
+  document.getElementById("name").style.display =
+    mode === "register" ? "block" : "none";
+}
+
+function handleAuth(){
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  if(mode === "register"){
+    if(users.find(u => u.email === email)){
+      alert("User already exists");
+      return;
+    }
+
+    users.push({
+      id: Date.now(),
+      name,
+      email,
+      password,
+      cart:[]
+    });
+
+    localStorage.setItem("users", JSON.stringify(users));
+    alert("Registered successfully!");
+    toggleMode();
+  }
+
+  else {
+    let user = users.find(u => u.email === email && u.password === password);
+
+    if(!user){
+      alert("Invalid login");
+      return;
+    }
+
+    localStorage.setItem("loggedUser", JSON.stringify(user));
+    window.location.href = "shop.html";
+  }
+}
+</script>
+
+</body>
+</html>

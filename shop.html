@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width" initial-scale="1.0">
+<title>My Shop</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#f4f4f4;
+}
+
+header{
+    background:#000;
+    color:white;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+
+.cart-btn{
+    cursor:pointer;
+    font-size:18px;
+}
+
+.welcome{
+    font-weight:bold;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:20px;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card img{
+    width:100%;
+    
+    object-fit:cover;
+    padding: 10px;
+}
+
+.card-content{
+    padding:10px;
+    text-align:center;
+}
+
+.card h3{
+    margin-bottom:10px;
+}
+
+.price{
+    color:green;
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+button{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:5px;
+    background:red;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:0.9;
+}
+#menuBtn{
+    position:fixed;
+    top:15px;
+    right:15px;
+    font-size:28px;
+    cursor:pointer;
+    background:#e91e63;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:6px;
+}
+
+.side-menu{
+    position:fixed;
+    top:0;
+    right:-250px;
+    width:250px;
+    height:100%;
+    background:#222;
+    transition:0.4s;
+    padding-top:70px;
+}
+
+.side-menu a{
+    display:block;
+    color:white;
+    text-decoration:none;
+    padding:18px;
+    font-size:18px;
+}
+
+.side-menu a:hover{
+    background:#e91e63;
+}
+</style>
+</head>
+<body>
+
+<header>
+    <!-- Menu Button -->
+<button id="menuBtn">☰</button>
+
+<!-- Side Menu -->
+<div id="sideMenu" class="side-menu">
+
+    <a href="shop.html">🏠 Home</a>
+
+    <a href="cart.html">🛒 Cart</a>
+
+    <a href="profile.html">👤 Profile</a>
+
+   <a href="https://www.instagram.com/richymfine" target="_blank" rel="noopener noreferrer">
+    📞 Contact
+</a>
+
+    <a href="#" onclick="showHelp()">
+        ❓ Help
+    </a>
+
+    <a href="#" onclick="logout()">
+        🚪 Logout
+    </a>
+
+</div>
+</header>
+
+<div class="grid" id="grid"></div>
+<script>
+    
+
+const user = JSON.parse(localStorage.getItem("loggedUser"));
+
+const userElement = document.getElementById("user");
+if (user && userElement) {
+    userElement.textContent = user.name;
+}
+
+const products = [
+    {id:1, name:"iPhone 16", price:999, image:"imagestop/iphone15.jpg"},
+    {id:2, name:"Samsung Galaxy S25", price:899, image:"imagestop/sasung s252.jpg"},
+    {id:3, name:"HP Laptop", price:650, image:"imagestop/hp laptop1.jpg"},
+    {id:4, name:"Mac Laptop", price:700, image:"imagestop/mac laptop.jpg"},
+    {id:5, name:"Gaming Laptop", price:850, image:"imagestop/gaming laptop.jpg"},
+    {id:6, name:"iPhone 15", price:799, image:"imagestop/iphone.jpg"},
+    {id:7, name:"Keyboard", price:35, image:"imagestop/keyboard.jpg"},
+    {id:8, name:"Bluetooth Speaker", price:60, image:"imagestop/bluetoothspeaker.jpg"},
+    {id:9, name:"Power Bank", price:30, image:"imagestop/powerbank.jpg"},
+    {id:10, name:"USB Cable", price:10, image:"imagestop/usb cable.jpg"},
+    {id:11, name:"Monitor", price:180, image:"imagestop/monitor.jpg"},
+    {id:12, name:"Laptop Bag", price:40, image:"imagestop/laptopbag.jpg"},
+    {id:13, name:"Printer", price:150, image:"imagestop/printer.jpg"},
+    {id:14, name:"Router", price:55, image:"imagestop/router.jpg"},
+    {id:15, name:"Webcam", price:45, image:"imagestop/webcam.jpg"},
+    {id:16, name:"Desk Lamp", price:20, image:"imagestop/desk lamp.jpg"},
+    {id:17, name:"Tablet", price:300, image:"imagestop/tablet.jpg"},
+    {id:18, name:"Microphone", price:70, image:"imagestop/microphone.jpg"},
+    {id:19, name:"External SSD", price:110, image:"imagestop/external ssd.jpg"},
+    {id:20, name:"Gaming Laptop", price:220, image:"imagestop/gaming laptop 2.jpg"}
+];
+
+function render() {
+    const grid = document.getElementById("grid");
+
+    if (!grid) return;
+
+    grid.innerHTML = products.map(product => `
+        <div class="card">
+            <img src="${product.image}" alt="${product.name}">
+            <div class="card-content">
+                <h3>${product.name}</h3>
+                <p class="price">$${product.price}</p>
+                <button onclick="addToCart(${product.id})">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+    `).join("");
+}
+
+function addToCart(id) {
+
+    if (!user) {
+        alert("Please login first");
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    let index = users.findIndex(u => u.email === user.email);
+
+    if (index === -1) {
+        alert("User not found");
+        return;
+    }
+
+    if (!users[index].cart) {
+        users[index].cart = [];
+    }
+
+    const product = products.find(p => p.id === id);
+
+    const existing = users[index].cart.find(item => item.id === id);
+
+    if (existing) {
+        existing.qty++;
+    } else {
+        users[index].cart.push({
+            ...product,
+            qty: 1
+        });
+    }
+
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("loggedUser", JSON.stringify(users[index]));
+
+    alert(product.name + " added to cart!");
+}
+
+function goHome() {
+    window.location.href = "shop.html";
+}
+
+function goCart() {
+    window.location.href = "cart.html";
+}
+
+function goProfile() {
+    window.location.href = "profile.html";
+}
+
+function logout() {
+    localStorage.removeItem("loggedUser");
+    window.location.href = "login.html";
+}
+
+const menuBtn = document.getElementById("menuBtn");
+const sideMenu = document.getElementById("sideMenu");
+
+if (menuBtn && sideMenu) {
+    menuBtn.onclick = function () {
+        if (sideMenu.style.right === "0px" || sideMenu.style.right === "0") {
+            sideMenu.style.right = "-250px";
+        } else {
+            sideMenu.style.right = "0";
+        }
+    };
+}
+
+function showHelp() {
+    alert(`Welcome to Friends Looks and Designs!
+
+🏠 Home - Browse products
+
+🛒 Cart - View selected items
+
+👤 Profile - Your account
+
+📞 Contact - Opens Instagram (@richymfine)
+
+🚪 Logout - Sign out
+
+Need more help?
+Send us a message on Instagram.`);
+}
+
+render();
+</script>
+</body>
+</html>

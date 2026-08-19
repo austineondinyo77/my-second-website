@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart</title>
+
+<style>
+body { font-family: Arial; background:#f4f4f4; }
+
+.item {
+  background:white; margin:10px; padding:10px;
+  display:flex; justify-content:space-between;
+}
+
+button {
+  background:red; color:white; border:none;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Your Cart</h2>
+
+<div id="cart"></div>
+
+<script>
+
+let user = JSON.parse(localStorage.getItem("loggedUser"));
+
+function load(){
+  let users = JSON.parse(localStorage.getItem("users"));
+  let u = users.find(x => x.email === user.email);
+
+  let cartDiv = document.getElementById("cart");
+
+  if(u.cart.length === 0){
+    cartDiv.innerHTML = "<p>Cart is empty</p>";
+    return;
+  }
+
+  cartDiv.innerHTML = u.cart.map((item,i)=>`
+    <div class="item">
+      <div>
+        ${item.name} x ${item.qty} - $${item.price * item.qty}
+      </div>
+      <button onclick="removeItem(${i})">Remove</button>
+    </div>
+  `).join("");
+}
+
+function removeItem(index){
+  let users = JSON.parse(localStorage.getItem("users"));
+  let uIndex = users.findIndex(u => u.email === user.email);
+
+  users[uIndex].cart.splice(index,1);
+
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("loggedUser", JSON.stringify(users[uIndex]));
+
+  load();
+}
+
+load();
+
+</script>
+
+</body>
+</html>
